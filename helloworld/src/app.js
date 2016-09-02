@@ -1,13 +1,11 @@
 
 var size = cc.winSize;
-var number = 20;
+var number = 10;
 var MAIN_COLOR = cc.color(255, 255, 255, 255);
 var BIG_CIRCLE_RADIUS = 60;
 var SMALL_CIRCLE_RADIUS = 6;
 var BIGFONT_SIZE = 60;
 var LINE_LEN = 180;
-
-var lineSet = [];
 
 var RotateLayer = cc.Layer.extend({
 
@@ -19,13 +17,16 @@ var RotateLayer = cc.Layer.extend({
             event: cc.EventListener.TOUCH_ONE_BY_ONE,
             swallowTouches: true,
             onTouchBegan: function (touch, event) {
-                cc.log("onTouchBegan..");
+                if(number == 0){
+                    cc.eventManager.stopAction();
+                    return false;
+                }
+                number = number - 1;
                 var lineSprite = new LineSprite();
                 lineSprite.attr({
                     x:size.width/2,
                     y:size.height/2
                 });
-                lineSet.push(lineSprite);
                 my.addChild(lineSprite);
                 //this.lineSprite = null;
                 return true;
@@ -37,12 +38,10 @@ var RotateLayer = cc.Layer.extend({
                //TODO
             }
 
+
         });
-
         cc.eventManager.addListener(listener1, this);
-    }
-
-
+    },
 
 });
 
@@ -69,7 +68,7 @@ var BGLayer = cc.Layer.extend({
         this.circleSprite = new CircleSprite();
         this.circleSprite.attr({
             x:size.width/2,
-            y:size.height/2
+            y:size.height/2,
         });
         this.addChild(this.circleSprite,0);
 
@@ -84,7 +83,6 @@ var CircleSprite = cc.Sprite.extend({
     ctor:function () {
         this._super();
         cc.log("circle sprite create...");
-
         this.width = 120;
         this.height = 120;
         // 将锚点设置为（0,0）时，大圆才能居中显示，否则有偏差（？此点需要研究）
@@ -103,7 +101,7 @@ var CircleSprite = cc.Sprite.extend({
         numSprite.attr({
             x:0,
             y:0,
-            color:cc.color(0,0,0,255)
+            color:cc.color(255,255,255,255)
         });
         this.addChild(numSprite,0);
     }
@@ -113,8 +111,7 @@ var CircleSprite = cc.Sprite.extend({
 var LineSprite = cc.Sprite.extend({
 
     lineDraw:null,
-
-
+    time:3,
     ctor:function () {
         this._super();
         this.width = 6;
@@ -138,9 +135,10 @@ var LineSprite = cc.Sprite.extend({
     },
     startRotate:function () {
         // add actions
-        var rotate = cc.rotateBy(2,180);
+        var rotate = cc.rotateBy(this.time, 180);
         this.runAction(cc.sequence(rotate,rotate).repeatForever());
-    }
+    },
+
 });
 
 var HelloWorldScene = cc.Scene.extend({
@@ -150,6 +148,12 @@ var HelloWorldScene = cc.Scene.extend({
         this.addChild(bgLayer,0);
         var rotateLayer = new RotateLayer();
         this.addChild(rotateLayer,1);
-    }
+
+    },
+
+
+
+
+
 });
 
